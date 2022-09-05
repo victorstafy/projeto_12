@@ -24,6 +24,11 @@ const userSchema = joi.object({
     name: joi.string().min(1).trim().required(),
   });
 
+const messagesSchema = joi.object({
+    to: joi.string().min(1).trim().required(),
+    text: joi.string().min(1).trim().required(),
+    type: joi.valid("message", "private_message").required(),
+});
 
 // get and post APIs
 server.post('/participants',async (req,res)=>{
@@ -71,5 +76,45 @@ server.get('/participants',async (req,res)=>{
         res.sendStatus(500);
     } 
 })
+
+server.post('/messages', async (req,res)=>{
+    const user_msg=req.body;
+    const validation = messagesSchema.validate(req.body, {
+        abortEarly: false,
+    });
+
+    try{
+        const current_user = req.headers.user;
+
+        if (validation.error) {
+            res.status(422).send(validation.error.details);
+            return;
+        }
+
+        const participant = await db.collection("participants").find().toArray();
+        console.log(participant)
+
+        const signed_user= await db.collection("messages").findOne({
+            from:current_user,
+        })
+        
+        if (!signed_user){
+            res.sendStatus(422);
+            return;
+        }
+
+        await db.collection("message").insertOne({
+            from: current_user, to: user_msg.to, text: user_msg.text, type: user_msg.type, time: dayjs().format("HH:MM:ss")
+        })
+
+        res.sendStatus(201);
+    }
+    catch{
+        res.sendStatus(422);
+    }
+})
+
+
+
 
 server.listen(5000,function(){console.log('port 5000')});
