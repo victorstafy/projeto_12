@@ -114,7 +114,28 @@ server.post('/messages', async (req,res)=>{
     }
 })
 
+server.get("/messages", async (req, res) => {
+    const limit = parseInt(req.query.limit);
+    const current_user = req.headers.user;
+  
+    try {
+      const msg = await db.collection("messages").find().toArray();
+  
+      const allowed_msg = [];
+      msg.filter((value, i) => {
+        if (
+            value.type === "message" || value.type === "status" ||
+          (value.type === "private_message" && value.from === current_user) || value.to === current_user     
+        ) {
+            allowed_msg.push(value);
+        }
+      });
+      res.send(allowed_msg.slice(-limit));
 
+    } catch {
+      res.sendStatus(500);
+    }
+});
 
 
 server.listen(5000,function(){console.log('port 5000')});
