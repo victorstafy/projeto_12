@@ -7,6 +7,7 @@ let buscarMensagens = true;
 
 perguntarNome();
 
+
 function perguntarNome() {
   nome = prompt("Digite seu lindo nome");
   registrarParticipante();

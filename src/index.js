@@ -170,7 +170,7 @@ server.post('/status', async (req,res)=>{
                 })
             })
             
-        },10000)
+        },15000)
         
         res.sendStatus(200);
     }
@@ -178,10 +178,5 @@ server.post('/status', async (req,res)=>{
         res.sendStatus(500);
     }
 })
-
-// server.delete('/status', async (req, res) => {
-
-// });
-
 
 server.listen(5000,function(){console.log('port 5000')});
